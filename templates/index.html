@@ -64,7 +64,7 @@
         </button>
 
         <p>
-            Local AI summaries support up to 6,000 extracted characters.
+            Local AI summaries support up to 10,000 extracted characters.
             Generating a summary may take a few minutes.
         </p>
     </form>
@@ -75,15 +75,18 @@
 
     {% if summary %}
         <h2>AI summary</h2>
-        <p>
-            Generated locally. Check important details against the original PDF.
-        </p>
+        <p>Generated locally. Check important details against the original PDF.</p>
+
         <label for="summary-text">Your summary:</label>
         <textarea id="summary-text" readonly>{{ summary }}</textarea>
+
+        <button type="button" id="copy-summary-button">Copy summary</button>
+        <p id="summary-copy-status" role="status"></p>
     {% endif %}
 
     {% if text %}
         <h2>Extracted text</h2>
+
         <label for="extracted-text">Your PDF's text:</label>
         <textarea id="extracted-text" readonly>{{ text }}</textarea>
 
@@ -92,28 +95,40 @@
     {% endif %}
 
     <script>
-        // Find the copy button by its HTML ID.
-        const copyButton = document.getElementById("copy-button");
+    function setupCopyButton(buttonId, textId, statusId) {
+        const button = document.getElementById(buttonId);
 
-        // The button only exists after text has been extracted.
-        if (copyButton) {
-            copyButton.addEventListener("click", async () => {
-                const textBox = document.getElementById("extracted-text");
-                const status = document.getElementById("copy-status");
-
-                try {
-                    // Copy the extracted text to the clipboard.
-                    await navigator.clipboard.writeText(textBox.value);
-                    status.textContent = "Text copied!";
-                } catch (error) {
-                    // Select the text so the user can copy it manually.
-                    textBox.focus();
-                    textBox.select();
-                    status.textContent =
-                        "Automatic copying failed. Press Command + C on Mac or Ctrl + C on Windows.";
-                }
-            });
+        if (!button) {
+            return;
         }
-    </script>
+
+        button.addEventListener("click", async () => {
+            const textBox = document.getElementById(textId);
+            const status = document.getElementById(statusId);
+
+            try {
+                await navigator.clipboard.writeText(textBox.value);
+                status.textContent = "Copied!";
+            } catch (error) {
+                textBox.focus();
+                textBox.select();
+                status.textContent =
+                    "Automatic copying failed. Press Command + C on Mac or Ctrl + C on Windows.";
+            }
+        });
+    }
+
+    setupCopyButton(
+        "copy-button",
+        "extracted-text",
+        "copy-status"
+    );
+
+    setupCopyButton(
+        "copy-summary-button",
+        "summary-text",
+        "summary-copy-status"
+    );
+</script>
 </body>
 </html>
