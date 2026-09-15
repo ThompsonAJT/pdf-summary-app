@@ -61,6 +61,36 @@
         <h2>Extracted text</h2>
         <label for="extracted-text">Your PDF's text:</label>
         <textarea id="extracted-text" readonly>{{ text }}</textarea>
+        <button type="button" id="copy-button">Copy text</button>
+        <p id="copy-status" role="status"></p>
     {% endif %}
+
+
+
+    // getElementById() finds an HTML element by its ID.
+    //addEventListener("click", ...) runs the code when you click the button.
+    // textBox.value gets the extracted text.
+    //navigator.clipboard.writeText() copies it to your clipboard.
+    // if (copyButton) avoids an error before a PDF has been uploaded, when the button doesnt exist yet.
+    <script>
+    const copyButton = document.getElementById("copy-button");
+
+        if (copyButton) {
+            copyButton.addEventListener("click", async () => {
+                const textBox = document.getElementById("extracted-text");
+                const status = document.getElementById("copy-status");
+
+                try {
+                    await navigator.clipboard.writeText(textBox.value);
+                    status.textContent = "Text copied!";
+                } catch (error) {
+                    textBox.focus();
+                    textBox.select();
+                    status.textContent =
+                        "Automatic copying failed. Press Command + C on Mac or Ctrl + C on Windows.";
+                }
+            });
+        }
+</script>
 </body>
 </html>
