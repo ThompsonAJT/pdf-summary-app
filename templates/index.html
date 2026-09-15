@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>PDF Summary App</title>
+
     <style>
         body {
             max-width: 800px;
@@ -35,13 +36,16 @@
         }
     </style>
 </head>
+
 <body>
     <h1>PDF Summary App</h1>
     <p>Upload a PDF to extract its text. Maximum upload: 10 MB.</p>
 
+    <!-- One form containing the file input and both submit buttons. -->
     <form method="POST" enctype="multipart/form-data">
         <label for="pdf">Choose a PDF:</label>
         <br>
+
         <input
             type="file"
             id="pdf"
@@ -50,40 +54,59 @@
             required
         >
         <br>
-        <button type="submit">Extract text</button>
+
+        <button type="submit" name="action" value="extract">
+            Extract text
+        </button>
+
+        <button type="submit" name="action" value="summarize">
+            Extract and summarize
+        </button>
+
+        <p>
+            Local AI summaries support up to 6,000 extracted characters.
+            Generating a summary may take a few minutes.
+        </p>
     </form>
 
     {% if error %}
         <p class="error" role="alert">{{ error }}</p>
     {% endif %}
 
+    {% if summary %}
+        <h2>AI summary</h2>
+        <p>
+            Generated locally. Check important details against the original PDF.
+        </p>
+        <label for="summary-text">Your summary:</label>
+        <textarea id="summary-text" readonly>{{ summary }}</textarea>
+    {% endif %}
+
     {% if text %}
         <h2>Extracted text</h2>
         <label for="extracted-text">Your PDF's text:</label>
         <textarea id="extracted-text" readonly>{{ text }}</textarea>
+
         <button type="button" id="copy-button">Copy text</button>
         <p id="copy-status" role="status"></p>
     {% endif %}
 
-
-
-    // getElementById() finds an HTML element by its ID.
-    //addEventListener("click", ...) runs the code when you click the button.
-    // textBox.value gets the extracted text.
-    //navigator.clipboard.writeText() copies it to your clipboard.
-    // if (copyButton) avoids an error before a PDF has been uploaded, when the button doesnt exist yet.
     <script>
-    const copyButton = document.getElementById("copy-button");
+        // Find the copy button by its HTML ID.
+        const copyButton = document.getElementById("copy-button");
 
+        // The button only exists after text has been extracted.
         if (copyButton) {
             copyButton.addEventListener("click", async () => {
                 const textBox = document.getElementById("extracted-text");
                 const status = document.getElementById("copy-status");
 
                 try {
+                    // Copy the extracted text to the clipboard.
                     await navigator.clipboard.writeText(textBox.value);
                     status.textContent = "Text copied!";
                 } catch (error) {
+                    // Select the text so the user can copy it manually.
                     textBox.focus();
                     textBox.select();
                     status.textContent =
@@ -91,6 +114,6 @@
                 }
             });
         }
-</script>
+    </script>
 </body>
 </html>
