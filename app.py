@@ -28,7 +28,7 @@ def home():
                     error = "Please upload a PDF without password protection."
                 else:
                     text = "\n\n".join(
-                        page.extract_text() or ""
+                        " ".join((page.extract_text() or "").split())
                         for page in reader.pages
                     )
 
