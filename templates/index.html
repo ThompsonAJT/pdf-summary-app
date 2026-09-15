@@ -42,7 +42,7 @@
     <p>Upload a PDF to extract its text. Maximum upload: 10 MB.</p>
 
     <!-- One form containing the file input and both submit buttons. -->
-    <form method="POST" enctype="multipart/form-data">
+    <form id="pdf-form" method="POST" enctype="multipart/form-data">
         <label for="pdf">Choose a PDF:</label>
         <br>
 
@@ -68,6 +68,8 @@
             Generating a summary may take a few minutes.
         </p>
     </form>
+
+    <p id="processing-status" role="status" aria-live="polite"></p>
 
     {% if error %}
         <p class="error" role="alert">{{ error }}</p>
@@ -129,6 +131,36 @@
         "summary-text",
         "summary-copy-status"
     );
+
+    const pdfForm = document.getElementById("pdf-form");
+const processingStatus = document.getElementById("processing-status");
+
+pdfForm.addEventListener("submit", (event) => {
+    const action = event.submitter?.value || "extract";
+
+    // Preserve the clicked button's action before disabling the buttons.
+    let actionInput = pdfForm.querySelector('input[name="action"]');
+
+    if (!actionInput) {
+        actionInput = document.createElement("input");
+        actionInput.type = "hidden";
+        actionInput.name = "action";
+        pdfForm.appendChild(actionInput);
+    }
+
+    actionInput.value = action;
+
+    processingStatus.textContent =
+        action === "summarize"
+            ? "Generating summary… Please keep this page open."
+            : "Extracting text…";
+
+    pdfForm.setAttribute("aria-busy", "true");
+
+    pdfForm.querySelectorAll('button[type="submit"]').forEach((button) => {
+        button.disabled = true;
+    });
+});
 </script>
 </body>
 </html>
